@@ -26,10 +26,11 @@ class PepSpider(scrapy.Spider):
         from each PEP documentation page.
 
         """
-        h1 = response.css('h1.page-title::text').get()
+        h1_text = response.css('h1.page-title::text').getall()
+        complete_text = ''.join(h1_text)
         pep_num_name_pattern = PEP_NUMBER_NAME_SRCH_PATN
 
-        pep_number_name = re.search(pep_num_name_pattern, h1)
+        pep_number_name = re.search(pep_num_name_pattern, complete_text)
         pep_name = pep_number_name.group(PEP_NAME_GROUP)
         pep_number = pep_number_name.group(PEP_NUMBER_GROUP)
 
