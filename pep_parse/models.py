@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import declarative_base, declared_attr, relationship
 
+from pep_parse.settings import STRING_LENGTH
+
 
 class Base:
 
@@ -16,14 +18,17 @@ Base = declarative_base(cls=Base)
 
 class Status(Base):
     """PEP document status db model."""
-    status = Column(String(200), unique=True)
+    status = Column(String(STRING_LENGTH), unique=True)
     peps = relationship('Pep', back_populates='status')
+
+    def __repr__(self):
+        return self.status
 
 
 class Pep(Base):
     """PEP document db model."""
     pep_number = Column(Integer, unique=True, nullable=False)
-    title = Column(String(200), nullable=False)
+    title = Column(String(STRING_LENGTH), nullable=False)
     status_id = Column(Integer, ForeignKey("status.id"), nullable=False)
     status = relationship('Status', back_populates='peps')
 

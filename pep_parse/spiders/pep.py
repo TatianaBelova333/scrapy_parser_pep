@@ -1,10 +1,10 @@
 import re
-from pep_parse.settings import (PEP_NAME_GROUP, PEP_NUMBER_NAME_SRCH_PATN,
-                                PEP_NUMBER_GROUP)
 
 import scrapy
 
 from pep_parse.items import PepParseItem
+from pep_parse.settings import (PEP_NAME_GRP, PEP_NUM_NAME_SRCH_PATN,
+                                PEP_NUM_GRP)
 
 
 class PepSpider(scrapy.Spider):
@@ -28,11 +28,10 @@ class PepSpider(scrapy.Spider):
         """
         h1_text = response.css('h1.page-title::text').getall()
         complete_text = ''.join(h1_text)
-        pep_num_name_pattern = PEP_NUMBER_NAME_SRCH_PATN
 
-        pep_number_name = re.search(pep_num_name_pattern, complete_text)
-        pep_name = pep_number_name.group(PEP_NAME_GROUP)
-        pep_number = pep_number_name.group(PEP_NUMBER_GROUP)
+        pep_number_name = re.search(PEP_NUM_NAME_SRCH_PATN, complete_text)
+        pep_name = pep_number_name.group(PEP_NAME_GRP)
+        pep_number = pep_number_name.group(PEP_NUM_GRP)
 
         pep_status = response.css(
             'dt:contains("Status") + dd>abbr::text',

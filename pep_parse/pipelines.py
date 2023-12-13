@@ -2,7 +2,7 @@ from itertools import chain
 
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, select, union_all, column
 from sqlalchemy.orm import Session
 
 from pep_parse.models import Base, Pep, Status
@@ -51,15 +51,15 @@ class PepParsePipeline:
                     )
                 )
             self.session.commit()
-
-            return item
         else:
             raise DropItem(f"Missing fields in {item}")
+
+        return item
 
     def status_summary(self):
         """
         Extract data from database and calculate the number of PEP document
-        for each status.
+        for each status and the total number of all PEP docs.
 
         """
         file_prefix = self.status_summary.__name__
@@ -69,18 +69,17 @@ class PepParsePipeline:
             Status.status, func.count(Pep.status_id)
         ).join(
             Pep, Pep.status_id == Status.id,
-        ).group_by(Pep.status_id).order_by(Status.status)
+        ).group_by(Pep.status_id)
 
-        count_by_pep_stat = self.session.execute(pep_stat_num_qry)
+        peps_total_qry = select(column('TOTAL'), func.count(Pep.id))
 
-        all_peps_total = self.session.execute(
-            select(func.count(Pep.id))
-        ).scalar_one()
+        db_query = self.session.execute(
+            union_all(pep_stat_num_qry, peps_total_qry),
+        )
 
         summary_results = chain(
             (status_summary_cols,),
-            count_by_pep_stat,
-            (('TOTAL', all_peps_total),)
+            db_query,
         )
 
         csv_file_output(
