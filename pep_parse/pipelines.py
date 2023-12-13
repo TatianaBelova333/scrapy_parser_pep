@@ -51,10 +51,8 @@ class PepParsePipeline:
                     )
                 )
             self.session.commit()
-        else:
-            raise DropItem(f"Missing fields in {item}")
-
-        return item
+            return item
+        raise DropItem(f"Missing fields in {item}")
 
     def status_summary(self):
         """
