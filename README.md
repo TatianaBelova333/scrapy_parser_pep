@@ -10,6 +10,9 @@ The parsed data is saved in csv files.
 
 Additionally the parsed data is saved in sqlite database.
 
+## Technologies
+* SQLAlchemy==1.4.0
+* Scrapy==2.5.1
 
 ## Installation
 - Clone the repository
